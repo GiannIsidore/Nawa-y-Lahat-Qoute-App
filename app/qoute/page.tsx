@@ -9,17 +9,9 @@ const Qoutes = () => {
   return (
     <div>
       <Nav />
-      <main className="grid grid-cols-4  gap-2 justify-between">
-        <div className="col-span-1">
-          {" "}
-          <Trending />
-        </div>
-        <div className="col-span-2 flex flex-col ">
-          <HugotBody />
-        </div>
+      <main className="flex flex-col items-center justify-center">
         <div>
-          {" "}
-          <People />
+          <Trending />
         </div>
       </main>
     </div>

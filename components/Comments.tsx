@@ -21,6 +21,7 @@ interface Comment {
   fullName: string;
   comment: string;
   created_at: string;
+  profilePic: string; // Added field for profile picture
 }
 
 function CommentsSection({ postID }: { postID: number }) {
@@ -72,29 +73,16 @@ function CommentsSection({ postID }: { postID: number }) {
 
       if (response.data.success) {
         setComments((prevComments) => {
-          if (Array.isArray(prevComments)) {
-            return [
-              ...prevComments,
-              {
-                commentID: response.data.commentID,
-                username: currentUser.username,
-                fullName: `${currentUser.fname} ${currentUser.mname} ${currentUser.lname}`,
-                comment: newComment,
-                created_at: new Date().toISOString(),
-              },
-            ];
-          } else {
-            // Handle case where prevComments is not an array
-            return [
-              {
-                commentID: response.data.commentID,
-                username: currentUser.username,
-                fullName: `${currentUser.fname} ${currentUser.mname} ${currentUser.lname}`,
-                comment: newComment,
-                created_at: new Date().toISOString(),
-              },
-            ];
-          }
+          const newCommentData = {
+            commentID: response.data.commentID,
+            username: currentUser.username,
+            fullName: `${currentUser.fname} ${currentUser.mname} ${currentUser.lname}`,
+            comment: newComment,
+            created_at: new Date().toISOString(),
+            profilePic: currentUser.profilePic || "/placeholder-user.jpg", // Use profile pic or placeholder
+          };
+
+          return [...prevComments, newCommentData];
         });
 
         setNewComment(""); // Clear the input field
@@ -127,9 +115,13 @@ function CommentsSection({ postID }: { postID: number }) {
                   className="flex items-start space-x-4 mb-4 last:mb-0"
                 >
                   <Avatar>
-                    <AvatarImage src="/placeholder-user.jpg" alt="Anonymous" />
+                    <AvatarImage
+                      src={comment.profilePic}
+                      alt={comment.fullName}
+                    />
                     <AvatarFallback>{comment.fullName[0]}</AvatarFallback>
                   </Avatar>
+
                   <div className="flex-1 space-y-1">
                     <p className="text-sm font-medium leading-none">
                       {comment.fullName}

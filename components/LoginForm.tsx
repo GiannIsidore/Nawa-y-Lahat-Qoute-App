@@ -1,4 +1,5 @@
 "use client";
+import { Quote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -29,14 +30,13 @@ export function LoginForm() {
       );
       if (response.data.status === "success") {
         toast.toast({ title: "yehey (～￣▽￣)～", variant: "success" });
-        console.log(response.data);
+        // console.log(response.data);
         localStorage.setItem(
           "currentUser",
           JSON.stringify(response.data.currentUser)
         );
-        console.log("User stored in local storage:", response.data.currentUser);
+        // console.log("User stored in local storage:", response.data.currentUser);
 
-        console.log(user);
         router.push("/qoute");
       } else if (response.data.status === "error") {
         toast.toast({ title: "oh noo! ＞﹏＜", variant: "destructive" });
@@ -109,13 +109,24 @@ export function LoginForm() {
         </div>
       </div>
       <div className="hidden bg-muted lg:block">
-        <Image
+        {/* <Image
           src="/placeholder.svg"
           alt="Image"
           width="1920"
           height="1080"
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+        /> */}
+        <div className="flex items-center justify-center w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 p-8">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <div className="flex items-center justify-center mb-4">
+              <Quote className="text-purple-600 w-10 h-10 mr-2" />
+              <h1 className="text-3xl font-bold text-gray-800">Nawa'y Lahat</h1>
+            </div>
+            <p className="text-center text-xl font-semibold text-pink-600">
+              Qoute App
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

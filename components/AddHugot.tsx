@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "./ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface qoute {
   title: string;
@@ -52,6 +53,7 @@ export default function AddHugot() {
   const [lname, setLname] = useState("");
   const [mname, setMname] = useState("");
   const [username, setUsername] = useState("");
+  const router = useRouter();
   const toast = useToast();
   useEffect(() => {
     const storedUser = localStorage.getItem("currentUser");
@@ -148,7 +150,7 @@ export default function AddHugot() {
         toast.toast({ description: "yess", variant: "success" });
         setTitle("");
         setContent("");
-
+        router.refresh();
         getPost();
       } else {
         console.error("Error inserting data:", response.data.message);

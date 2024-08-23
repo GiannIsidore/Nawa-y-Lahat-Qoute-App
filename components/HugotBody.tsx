@@ -5,27 +5,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import Image from "next/image";
-import { ReactElement, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Heart, MessageCircleMore } from "lucide-react";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
-import { MessageCircle, Send } from "lucide-react";
 import CommentsSection from "./Comments";
 
 interface Post {
@@ -42,10 +26,14 @@ interface Post {
   content: string;
   type: string;
   fullName: string;
+  profilePic: string; // Add this property to your Post interface
   likes_count: number;
   isLiked?: boolean; // Add this property
 }
-export default function HugotBody() {
+interface HugotBodyProps {
+  filterType?: string | null; // Optional prop to filter posts by type
+}
+export default function HugotBody({ filterType }: HugotBodyProps) {
   const [post, setPost] = useState<Post[]>([]);
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
   const [animatingPostID, setAnimatingPostID] = useState<number | null>(null);
@@ -54,15 +42,14 @@ export default function HugotBody() {
     const getPosts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost/qouteNia/php/getPost.php"
+          `http://localhost/qouteNia/php/getPost.php${
+            filterType ? `?type=${filterType}` : ""
+          }`
         );
-        if (response.data) {
-          console.log("Fetched posts:", response.data.data); // Log fetched posts for debugging
-          const postsWithFullName = response.data.data.map((post: Post) => ({
-            ...post,
-            fullName: `${post.fname} ${post.mname} ${post.lname}`,
-          }));
-          setPost(postsWithFullName);
+        if (response.data.status === "success") {
+          setPost(response.data.data);
+        } else {
+          console.error("Error fetching posts:", response.data.message);
         }
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -70,7 +57,8 @@ export default function HugotBody() {
     };
 
     getPosts();
-  }, []);
+  }, [filterType]); // Re-fetch posts whenever filterType changes
+
   // Function to fetch liked posts for the current user
   async function fetchLikedPosts(userId: Post["userID"]) {
     try {
@@ -103,12 +91,13 @@ export default function HugotBody() {
 
       post.forEach((post) => {
         const isLiked = likedPosts.includes(post.postID);
-        console.log(`Post ${post.postID} is liked: ${isLiked}`);
+        // console.log(`Post ${post.postID} is liked: ${isLiked}`);
       });
     }
 
     renderPosts();
   }, [post]); // Add 'post' as a dependency if the posts can change
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") ?? "");
 
   async function handleLike(postID: number, isCurrentlyLiked: boolean) {
     setAnimatingPostID(postID);
@@ -184,13 +173,15 @@ export default function HugotBody() {
   return (
     <section className="flex flex-col gap-2 max-w-4xl w-full">
       {post.map((post) => (
-        <div key={post.postID} className="grid gap-3 rounded-lg bg-muted p-4">
+        <div
+          key={post.postID}
+          className="grid gap-3 rounded-lg bg-muted p-4 shadow-2xl"
+        >
           <div className="flex items-center gap-3 justify-between drop-shadow-xl">
-            <div className="flex items-center gap-3 ">
-              {" "}
-              <Avatar className="h-12 w-12  ">
-                <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                <AvatarFallback>{post.fname}</AvatarFallback>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={post.profilePic} alt={post.fullName} />
+                <AvatarFallback>{post.fname.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
                 <div className="font-medium">{post.fullName}</div>
@@ -200,34 +191,37 @@ export default function HugotBody() {
                 </div>
               </div>
             </div>
-            <div>
-              {" "}
-              <Select>
-                <SelectTrigger aria-label="Options">
-                  <svg
-                    className=" w-6 h-6 text-gray-500 dark:text-gray-200"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="12" cy="12" r="1" />
-                    <circle cx="19" cy="12" r="1" />
-                    <circle cx="5" cy="12" r="1" />
-                  </svg>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="delete">Delete tweet</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {post.userID === currentUser.id && (
+              <div>
+                <Select>
+                  <SelectTrigger aria-label="Options">
+                    <svg
+                      className="w-6 h-6 text-gray-500 dark:text-gray-200"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle cx="12" cy="12" r="1" />
+                      <circle cx="19" cy="12" r="1" />
+                      <circle cx="5" cy="12" r="1" />
+                    </svg>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="delete">Delete post</SelectItem>
+                    <SelectItem value="edit">Edit post</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
           <div>
+            <h1 className="font-bold text-2xl">{post.title}</h1>
             <p className="max-w-2xl w-full">{post.content}</p>
           </div>
           <div className="flex items-center justify-between">

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { useToast } from "./ui/use-toast";
+import { Quote } from "lucide-react";
 export function RegisterForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -29,13 +30,24 @@ export function RegisterForm() {
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="hidden bg-muted lg:block">
-        <Image
+        {/* <Image
           src="/placeholder.svg"
           alt="Image"
           width="1920"
           height="1080"
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+        /> */}
+        <div className="flex items-center justify-center w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 p-8">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <div className="flex items-center justify-center mb-4">
+              <Quote className="text-purple-600 w-10 h-10 mr-2" />
+              <h1 className="text-3xl font-bold text-gray-800">Nawa'y Lahat</h1>
+            </div>
+            <p className="text-center text-xl font-semibold text-pink-600">
+              Sali Kana oh dakilang Makata...
+            </p>
+          </div>
+        </div>
       </div>
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
